@@ -1,0 +1,5 @@
+offline
+read_example
+.DS_Store
+*.dylib
+omni.h
