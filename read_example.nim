@@ -1,10 +1,10 @@
-import sfi
+import sndfile
 import os
 
 var 
     Filename = "~/validfile.wav".expandTilde()
     Info: TINFO
-    File = sfi.open(Filename, sfi.READ, Info.addr)
+    File = sndfile.open(Filename, sndfile.READ, Info.addr)
 
 if File == nil:
   echo("quitter...")
