@@ -3,3 +3,5 @@ read_example
 .DS_Store
 *.dylib
 omni.h
+*.exe
+*.dll
