@@ -4,12 +4,21 @@ import sndfile
 import os
 import strformat
 
-proc get_omni_inputs() : cint {.importc, dynlib: "./libLorenz.dylib"}
-proc get_omni_outputs() : cint {.importc, dynlib: "./libLorenz.dylib"}
+when defined(windows):
+    const sharedlib = "libLorenz.dll"
+elif defined(macosx):
+    const sharedlib = "libLorenz.dylib"
+else:
+    const sharedlib = "libLorenz.so"
 
-proc Omni_UGenAllocInit64(ins_ptr : ptr ptr cdouble, bufsize : cint, samplerate : cdouble, buffer_interface : pointer) : pointer {.importc, dynlib: "./libLorenz.dylib"}
-proc Omni_UGenPerform64(ugen_ptr : pointer, ins_ptr : ptr ptr cdouble, outs_ptr : ptr ptr cdouble, bufsize : cint) : void {.importc, dynlib: "./libLorenz.dylib"}
-proc Omni_UGenFree(ugen_ptr : pointer) : void {.importc, dynlib: "./libLorenz.dylib"}
+{.pragma: libsnd, cdecl, dynlib: soname.}
+
+proc get_omni_inputs() : cint {.importc, dynlib: sharedlib}
+proc get_omni_outputs() : cint {.importc, dynlib: sharedlib}
+
+proc Omni_UGenAllocInit64(ins_ptr : ptr ptr cdouble, bufsize : cint, samplerate : cdouble, buffer_interface : pointer) : pointer {.importc, dynlib: sharedlib}
+proc Omni_UGenPerform64(ugen_ptr : pointer, ins_ptr : ptr ptr cdouble, outs_ptr : ptr ptr cdouble, bufsize : cint) : void {.importc, dynlib: sharedlib}
+proc Omni_UGenFree(ugen_ptr : pointer) : void {.importc, dynlib: sharedlib}
 
 #################
 # Input Reading #
@@ -28,13 +37,7 @@ let
     inItems = cast[cint](inInfo.channels * inInfo.frames)
     inBuffer = cast[ptr UncheckedArray[cdouble]](alloc0(sizeof(cdouble) * inFrames))
 
-var inItemCount = sndfile.readf_double(inFile, inBuffer[0].addr, inItems)
-echo "initem count below"
-echo inItemCount
-echo "initem"
-
-    
-
+discard sndfile.readf_double(inFile, inBuffer[0].addr, inItems)
 
 # echo("Channels: " & $inInfo.channels)
 # echo("Frames: " & $iInfo.frames)
@@ -42,10 +45,6 @@ echo "initem"
 # echo("Format: " & $inInfo.format)
 # echo("Seekable?: " & $inInfo.seekable)
 # echo("Sections: " & $inInfo.sections)
-# let num_items = cast[cint](info.channels * info.frames)
-# echo num_items
-# var buffer = newSeq[cint](num_items)
-# let items_read = read_int(snd_file, buffer[0].addr, num_items
 ############
 # OMNI DSP #
 ############
